@@ -248,12 +248,12 @@ export default function DashboardsSection() {
                       {project.title}
                     </h3>
                     
-                    <p className="text-slate-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
+                    {/* <p className="text-slate-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
                       {project.description}
-                    </p>
+                    </p> */}
 
                     {/* Tech Stack */}
-                    <div className="flex flex-wrap gap-2">
+                    {/* <div className="flex flex-wrap gap-2">
                       {project.tech.map((tech, techIndex) => (
                         <span
                           key={techIndex}
@@ -262,7 +262,7 @@ export default function DashboardsSection() {
                           {tech}
                         </span>
                       ))}
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>

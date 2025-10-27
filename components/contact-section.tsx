@@ -1,40 +1,101 @@
 "use client"
 
 import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
 import { Button } from "@/components/ui/button"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { MapPin, Mail, Phone, Send, MessageSquare, Clock, Globe } from "lucide-react"
+import { useToast } from "@/components/ui/use-toast"
+import { MapPin, Mail, Phone, Send, MessageSquare, Clock, Globe, CheckCircle2 } from "lucide-react"
+import axios from 'axios';   
+ 
+// Zod validation schema
+const formSchema = z.object({
+  name: z.string().min(2, {
+    message: "Name must be at least 2 characters.",
+  }).max(50, {
+    message: "Name must not exceed 50 characters.",
+  }),
+  email: z.string().email({
+    message: "Please enter a valid email address.",
+  }),
+  subject: z.string().min(5, {
+    message: "Subject must be at least 5 characters.",
+  }).max(100, {
+    message: "Subject must not exceed 100 characters.",
+  }),
+  message: z.string().min(10, {
+    message: "Message must be at least 10 characters.",
+  }).max(1000, {
+    message: "Message must not exceed 1000 characters.",
+  }),
+})
+
+type FormValues = z.infer<typeof formSchema>
 
 export default function ContactSection() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitSuccess, setSubmitSuccess] = useState(false)
+  const { toast } = useToast()
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      subject: "",
+      message: "",
+    },
   })
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const handleSubmit = async (e:any) => {
-    e.preventDefault()
+  const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true)
-    
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    console.log("Form submitted:", formData)
-    setIsSubmitting(false)
-    
-    // Reset form
-    setFormData({ name: "", email: "", subject: "", message: "" })
-  }
+    setSubmitSuccess(false)
 
-  const handleChange = (e:any) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
+    try {
+      // Replace with your actual API endpoint
+      const response = await axios.post("/api/contact",data)
+
+      if (!response) {
+        throw new Error("Failed to send message")
+      }
+
+
+      
+      // Success handling
+      setSubmitSuccess(true)
+      toast({
+        title: "Message sent successfully!",
+        description: "We'll get back to you as soon as possible.",
+      })
+      
+      // Reset form after successful submission
+      form.reset()
+      
+      // Hide success message after 5 seconds
+      setTimeout(() => setSubmitSuccess(false), 5000)
+      
+    } catch (error) {
+      // Error handling
+      toast({
+        variant: "destructive",
+        title: "Failed to send message",
+        description: "Please try again later or contact us directly via email.",
+      })
+      console.error("Form submission error:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -160,91 +221,122 @@ export default function ContactSection() {
               <div className="bg-slate-800/60 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-slate-700/50">
                 <h3 className="text-2xl font-bold text-white mb-6">Send us a message</h3>
                 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {submitSuccess && (
+                  <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-xl flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-green-400" />
                     <div>
-                      <label htmlFor="name" className="block text-sm font-semibold text-white mb-2">
-                        Your Name
-                      </label>
-                      <Input
-                        type="text"
-                        id="name"
+                      <p className="text-sm font-medium text-green-400">Message sent successfully!</p>
+                      <p className="text-xs text-green-300/70">We'll get back to you as soon as possible.</p>
+                    </div>
+                  </div>
+                )}
+
+                <Form {...form}>
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
                         name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                        className="w-full h-12 rounded-xl bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-cyan-400/20"
-                        placeholder="John Doe"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-semibold text-white">
+                              Your Name
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="John Doe"
+                                {...field}
+                                className="w-full h-12 rounded-xl bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-cyan-400/20"
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-400" />
+                          </FormItem>
+                        )}
                       />
-                    </div>
 
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-semibold text-white mb-2">
-                        Your Email
-                      </label>
-                      <Input
-                        type="email"
-                        id="email"
+                      <FormField
+                        control={form.control}
                         name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        className="w-full h-12 rounded-xl bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-cyan-400/20"
-                        placeholder="john@example.com"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-semibold text-white">
+                              Your Email
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                type="email"
+                                placeholder="john@example.com"
+                                {...field}
+                                className="w-full h-12 rounded-xl bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-cyan-400/20"
+                              />
+                            </FormControl>
+                            <FormMessage className="text-red-400" />
+                          </FormItem>
+                        )}
                       />
                     </div>
-                  </div>
 
-                  <div>
-                    <label htmlFor="subject" className="block text-sm font-semibold text-white mb-2">
-                      Subject
-                    </label>
-                    <Input
-                      type="text"
-                      id="subject"
+                    <FormField
+                      control={form.control}
                       name="subject"
-                      value={formData.subject}
-                      onChange={handleChange}
-                      required
-                      className="w-full h-12 rounded-xl bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-cyan-400/20"
-                      placeholder="Project Inquiry"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-semibold text-white">
+                            Subject
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Project Inquiry"
+                              {...field}
+                              className="w-full h-12 rounded-xl bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-cyan-400/20"
+                            />
+                          </FormControl>
+                          <FormMessage className="text-red-400" />
+                        </FormItem>
+                      )}
                     />
-                  </div>
 
-                  <div>
-                    <label htmlFor="message" className="block text-sm font-semibold text-white mb-2">
-                      Message
-                    </label>
-                    <Textarea
-                      id="message"
+                    <FormField
+                      control={form.control}
                       name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      required
-                      rows={6}
-                      className="w-full rounded-xl bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-cyan-400/20 resize-none"
-                      placeholder="Tell us about your project requirements..."
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-semibold text-white">
+                            Message
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Tell us about your project requirements..."
+                              rows={6}
+                              {...field}
+                              className="w-full rounded-xl bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-cyan-400/20 resize-none"
+                            />
+                          </FormControl>
+                          <FormMessage className="text-red-400" />
+                        </FormItem>
+                      )}
                     />
-                  </div>
 
-                  <Button 
-                    type="submit" 
-                    disabled={isSubmitting}
-                    className="w-full h-12 bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-semibold rounded-xl transition-all duration-300 hover:scale-[1.02] disabled:hover:scale-100"
-                  >
-                    {isSubmitting ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        Sending...
-                      </div>
-                    ) : (
-                      <>
-                        <Send className="h-4 w-4 mr-2" />
-                        Send Message
-                      </>
-                    )}
-                  </Button>
-                </form>
+                    <Button 
+                      type="button"
+                      onClick={form.handleSubmit(onSubmit)}
+                      disabled={isSubmitting}
+                      className="w-full h-12 bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-semibold rounded-xl transition-all duration-300 hover:scale-[1.02] disabled:hover:scale-100 disabled:opacity-50"
+                    >
+                      {isSubmitting ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />
+                          Sending...
+                        </div>
+                      ) : (
+                        <>
+                          <Send className="h-4 w-4 mr-2" />
+                          Send Message
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </Form>
               </div>
             </div>
 
@@ -258,20 +350,20 @@ export default function ContactSection() {
                 
                 {/* Google Maps Embed */}
                 <div className="relative w-full h-80 rounded-xl overflow-hidden border border-slate-600">
-  <iframe
-    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1246.357444657978!2d79.88888130868624!3d7.071067054197325!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae2f149e915434f%3A0x548bcd00b455a513!2sELIoT%20International%20(Pvt)%20Ltd.!5e1!3m2!1sen!2slk!4v1758695868058!5m2!1sen!2slk"
-    width="100%"
-    height="100%"
-    style={{ border: 0 }}
-    allowFullScreen
-    loading="lazy"
-    referrerPolicy="no-referrer-when-downgrade"
-    className="rounded-xl filter contrast-125 saturate-110"
-  />
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1246.357444657978!2d79.88888130868624!3d7.071067054197325!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae2f149e915434f%3A0x548bcd00b455a513!2sELIoT%20International%20(Pvt)%20Ltd.!5e1!3m2!1sen!2slk!4v1758695868058!5m2!1sen!2slk"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="rounded-xl filter contrast-125 saturate-110"
+                  />
 
-  {/* Dark Mode Map Overlay */}
-  <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-slate-900/10 to-transparent rounded-xl" />
-</div>
+                  {/* Dark Mode Map Overlay */}
+                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-slate-900/10 to-transparent rounded-xl" />
+                </div>
 
                 {/* Location Info */}
                 <div className="mt-4 p-4 bg-slate-700/50 rounded-xl">
@@ -279,10 +371,11 @@ export default function ContactSection() {
                     <div>
                       <p className="text-sm font-semibold text-white">ELIoT International (Pvt) Ltd.</p>
                       <p className="text-xs text-slate-400">
-Hettigama, St Francis Xavier Rd, Ja-Ela 11350</p>
+                        Hettigama, St Francis Xavier Rd, Ja-Ela 11350
+                      </p>
                     </div>
                     <a
-                      href="https://maps.google.com/?q=339+Galle+Road,+Colombo+3,+Sri+Lanka"
+                      href="https://maps.google.com/?q=ELIoT+International+Pvt+Ltd+Ja-Ela"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-900 text-xs font-medium rounded-lg transition-colors"

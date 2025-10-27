@@ -10,6 +10,7 @@ import DashboardsSection from "@/components/portfolio-section"
 import ReportsStackSection from "@/components/reports-sections"
 import HeroSection from "@/components/hero-section"
 import ContactSection from "@/components/contact-section"
+import Footer from "@/components/footer"
 
 
 
@@ -27,6 +28,7 @@ export default function HomePage() {
       <ReportsSection />
       <ReportsStackSection/>
       <ContactSection />
+      <Footer />
     </main>
   )
 }

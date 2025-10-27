@@ -98,30 +98,7 @@ export function FeaturesSection() {
 
         {/* Dashboard Mockup */}
         <div className="mb-12" data-aos="zoom-in" data-aos-delay="200">
-          <Card className="bg-card/50 backdrop-blur-sm border-border/50 max-w-5xl mx-auto">
-            <CardHeader>
-            </CardHeader>
-            <CardContent className="pb-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-primary/10 rounded-lg p-4 text-center" data-aos="fade-in" data-aos-delay="400">
-                  <div className="text-3xl font-bold text-primary mb-2">87.1%</div>
-                  <div className="text-sm text-muted-foreground">Overall Efficiency</div>
-                </div>
-                <div className="bg-accent/10 rounded-lg p-4 text-center" data-aos="fade-in" data-aos-delay="500">
-                  <div className="text-3xl font-bold text-accent mb-2">434/2026</div>
-                  <div className="text-sm text-muted-foreground">Actual vs Target (pcs)</div>
-                </div>
-                <div className="bg-chart-3/10 rounded-lg p-4 text-center" data-aos="fade-in" data-aos-delay="600">
-                  <div className="text-3xl font-bold text-chart-3 mb-2">0</div>
-                  <div className="text-sm text-muted-foreground">Rejects</div>
-                </div>
-                <div className="bg-chart-4/10 rounded-lg p-4 text-center" data-aos="fade-in" data-aos-delay="700">
-                  <div className="text-3xl font-bold text-chart-4 mb-2">11.31%</div>
-                  <div className="text-sm text-muted-foreground">Line DHU </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          
         </div>
 
         {/* Features Grid */}

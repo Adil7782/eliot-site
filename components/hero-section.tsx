@@ -146,12 +146,7 @@ const Hero: React.FC = () => {
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </button></div>
               </a>
-              <button className="group flex items-center justify-center px-8 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-500 dark:hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg font-semibold transition-all duration-200">
-                <span>Watch Demo</span>
-                {  (
-                  <div className="ml-2 w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                )}
-              </button>
+          
             </div>
 
             {/* Feature Pills */}
